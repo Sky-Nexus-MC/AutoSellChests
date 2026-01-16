@@ -1,0 +1,33 @@
+# General Settings
+chest-item: "TRAPPED_CHEST"
+chest-name: "&a&lAutoSell Chest"
+check-interval: 20 # How often to check for sales (in ticks)
+hologram-update-interval: 20 # How often to update hologram visuals (in ticks)
+
+# GUI Settings
+gui-title: "&8AutoSell Settings"
+
+# Upgrades
+# Speed is in seconds (how long between sells)
+speed-upgrades:
+  1:
+    cost: 0
+    interval: 60
+  2:
+    cost: 1000
+    interval: 30
+  3:
+    cost: 5000
+    interval: 10
+
+# Multiplier determines the bonus on the base price (1.0 = 100% price, 1.5 = 150%)
+multiplier-upgrades:
+  1:
+    cost: 0
+    amount: 1.0
+  2:
+    cost: 2000
+    amount: 1.2
+  3:
+    cost: 10000
+    amount: 1.5

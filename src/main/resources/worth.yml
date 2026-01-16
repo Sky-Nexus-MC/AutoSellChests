@@ -1,0 +1,5 @@
+# format: MATERIAL: price_per_item
+DIAMOND: 100.0
+GOLD_INGOT: 50.0
+IRON_INGOT: 10.0
+COBBLESTONE: 0.5

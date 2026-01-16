@@ -1,0 +1,14 @@
+name: AutoSellChests
+version: '1.0-SNAPSHOT'
+main: rimon.autoSellChests.AutoSellChests
+api-version: '1.21'
+depend: [Vault, DecentHolograms, NBTAPI]
+author: Rimon_2004
+commands:
+  asc:
+    description: Main command for AutoSellChests
+    usage: /asc give <player> <amount>
+permissions:
+  autosellchests.admin:
+    description: Bypass all limits and access other players' chests
+    default: op
