@@ -5,8 +5,12 @@ api-version: '1.21'
 depend: [Vault, DecentHolograms, NBTAPI]
 author: Rimon_2004
 commands:
-  asc:
+  autosellchests:
     description: Main command for AutoSellChests
+    aliases:
+      - asc
+      - autosell
+      - sellchests
     usage: /asc give <player> <amount>
 permissions:
   autosellchests.admin:
