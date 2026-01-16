@@ -27,6 +27,9 @@ public class ChestManager {
         this.dataFile = new File(plugin.getDataFolder(), "data.yml");
         loadChests();
     }
+    public Collection<SellChest> getAllChests() {
+        return chests.values();
+    }
 
     public void tickChests() {
         long now = System.currentTimeMillis();

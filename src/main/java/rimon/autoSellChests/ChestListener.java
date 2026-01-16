@@ -2,6 +2,7 @@ package rimon.autoSellChests;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,6 +12,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 public class ChestListener implements Listener {
     private final AutoSellChests plugin;
@@ -22,17 +25,23 @@ public class ChestListener implements Listener {
     @EventHandler
     public void onPlace(BlockPlaceEvent e) {
         ItemStack item = e.getItemInHand();
-        if (item.getType() == Material.TRAPPED_CHEST && item.hasItemMeta()) {
+        String configName = plugin.getConfig().getString("chest-name", "&a&lAutoSell Chest").replace("&", "§");
+
+        if (item.getType() == Material.TRAPPED_CHEST && item.hasItemMeta() &&
+                item.getItemMeta().getDisplayName().equals(configName)) {
+
             if (plugin.getChestManager().createChest(e.getPlayer(), e.getBlock().getLocation())) {
                 SellChest chest = plugin.getChestManager().getChest(e.getBlock().getLocation());
+                PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
+                NamespacedKey speedKey = new NamespacedKey(plugin, "speed_lvl");
 
-                org.bukkit.persistence.PersistentDataContainer data = item.getItemMeta().getPersistentDataContainer();
-                org.bukkit.NamespacedKey speedKey = new org.bukkit.NamespacedKey(plugin, "speed_lvl");
-
-                if (data.has(speedKey, org.bukkit.persistence.PersistentDataType.INTEGER)) {
-                    chest.setSpeedLevel(data.get(speedKey, org.bukkit.persistence.PersistentDataType.INTEGER));
-                    chest.setMultiLevel(data.get(new org.bukkit.NamespacedKey(plugin, "multi_lvl"), org.bukkit.persistence.PersistentDataType.INTEGER));
+                if (data.has(speedKey, PersistentDataType.INTEGER)) {
+                    chest.setSpeedLevel(data.get(speedKey, PersistentDataType.INTEGER));
+                    chest.setMultiLevel(data.get(new NamespacedKey(plugin, "multi_lvl"), PersistentDataType.INTEGER));
                 }
+                e.getPlayer().sendMessage("§aAutoSell Chest placed successfully!");
+            } else {
+                e.setCancelled(true);
             }
         }
     }
