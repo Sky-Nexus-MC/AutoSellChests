@@ -27,6 +27,9 @@ public class AutoSellChests extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ChestListener(this), this);
         getServer().getPluginManager().registerEvents(new GuiListener(this), this);
         getCommand("autosellchests").setExecutor(new SellCommand(this));
+        SellCommand sellCmd = new SellCommand(this);
+        getCommand("asc").setExecutor(sellCmd);
+        getCommand("asc").setTabCompleter(sellCmd);
 
         startTasks();
     }

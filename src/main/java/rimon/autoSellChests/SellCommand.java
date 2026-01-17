@@ -5,12 +5,19 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import java.util.Collections;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class SellCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SellCommand implements CommandExecutor, TabCompleter {
     private final AutoSellChests plugin;
 
     public SellCommand(AutoSellChests plugin) {
@@ -18,16 +25,20 @@ public class SellCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        Player p = (Player) sender;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 
         if (args.length == 0) {
-            sendHelp(p);
+            sendHelp(sender);
             return true;
         }
 
         if (args[0].equalsIgnoreCase("claimall")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cOnly players can claim money from chests.");
+                return true;
+            }
+
+            Player p = (Player) sender;
             double totalToClaim = 0;
             int chestCount = 0;
 
@@ -51,19 +62,19 @@ public class SellCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("give")) {
-            if (!p.hasPermission("autosellchests.admin")) {
-                p.sendMessage("§cYou do not have permission to use admin commands.");
+            if (!sender.hasPermission("autosellchests.admin")) {
+                sender.sendMessage("§cYou do not have permission to use admin commands.");
                 return true;
             }
 
             if (args.length < 3) {
-                p.sendMessage("§cUsage: /asc give <player> <amount>");
+                sender.sendMessage("§cUsage: /asc give <player> <amount>");
                 return true;
             }
 
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                p.sendMessage("§cPlayer '" + args[1] + "' not found.");
+                sender.sendMessage("§cPlayer '" + args[1] + "' not found.");
                 return true;
             }
 
@@ -71,7 +82,7 @@ public class SellCommand implements CommandExecutor {
             try {
                 amount = Integer.parseInt(args[2]);
             } catch (NumberFormatException e) {
-                p.sendMessage("§cInvalid amount. Please use a number.");
+                sender.sendMessage("§cInvalid amount. Please use a number.");
                 return true;
             }
 
@@ -85,22 +96,54 @@ public class SellCommand implements CommandExecutor {
             item.setItemMeta(meta);
 
             target.getInventory().addItem(item);
-            p.sendMessage("§aSent " + amount + "x AutoSell Chests to " + target.getName());
+            sender.sendMessage("§aSent " + amount + "x AutoSell Chests to " + target.getName());
             target.sendMessage("§aYou received " + amount + "x AutoSell Chests!");
             return true;
         }
 
-        sendHelp(p);
+        sendHelp(sender);
         return true;
     }
 
-    private void sendHelp(Player p) {
-        p.sendMessage("§8§m---------------------------------");
-        p.sendMessage("§a§lAutoSell Chests Help");
-        p.sendMessage("§e/asc claimall §7- Claim money from all your chests.");
-        if (p.hasPermission("autosellchests.admin")) {
-            p.sendMessage("§e/asc give <p> <amt> §7- Give chests (Admin).");
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 1) {
+            completions.add("claimall");
+            if (sender.hasPermission("autosellchests.admin")) {
+                completions.add("give");
+            }
+            return filterCompletions(completions, args[0]);
         }
-        p.sendMessage("§8§m---------------------------------");
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
+            return null;
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
+            completions.add("1");
+            completions.add("16");
+            completions.add("64");
+            return filterCompletions(completions, args[2]);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<String> filterCompletions(List<String> list, String input) {
+        return list.stream()
+                .filter(s -> s.toLowerCase().startsWith(input.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§8§m---------------------------------");
+        sender.sendMessage("§a§lAutoSell Chests Help");
+        sender.sendMessage("§e/asc claimall §7- Claim money from all your chests.");
+        if (sender.hasPermission("autosellchests.admin")) {
+            sender.sendMessage("§e/asc give <p> <amt> §7- Give chests (Admin/Console).");
+        }
+        sender.sendMessage("§8§m---------------------------------");
     }
 }
